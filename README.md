@@ -41,4 +41,4 @@ User guide:
 - "Color replace" button on toolbar used to show the color or pixels you have replaced. You can import/export the whole list for large fuse bead project.
 - You can choose some popular brands of bead palettes.
 
-This guide will update at any time. Any suggest are welcomed.
+This guide will update at any time. Any suggest are welcomed.# fuse_bead_v2
