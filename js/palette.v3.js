@@ -303,9 +303,9 @@ allPalettes.set("mard",
     ]
 );
 
-allPalettes.set("manman",
-    [
-        { name: 'E2', color: 'faf5cd' },
+// 假设这是你的列表数据
+var items = [
+  { name: 'E2', color: 'faf5cd' },
         { name: 'B1', color: 'fcfed6' },
         { name: 'B2', color: 'fcff92' },
         { name: 'B3', color: 'f7ec5c' },
@@ -534,5 +534,21 @@ allPalettes.set("manman",
         { name: 'YX8', color: 'c79266' },
         { name: 'YX3', color: 'c37463' },
         { name: 'YX7', color: '747d7a' }, // No HEX value provided for M15
-    ]
+];
+
+// 根据name属性对数组进行排序
+items.sort(function(a, b) {
+  var nameA = a.name.toUpperCase(); // 把name值转换为大写进行比较
+  var nameB = b.name.toUpperCase(); // 把name值转换为大写进行比较
+  if (nameA < nameB) {
+    return -1;
+  }
+  if (nameA > nameB) {
+    return 1;
+  }
+  return 0;
+});
+
+allPalettes.set("manman",
+    items
 );
