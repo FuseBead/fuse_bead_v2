@@ -317,7 +317,7 @@
                     <p class="text-right">
                         by <a href="https://github.com/atonasting/fuse-bead-tool" target="_blank"> 苏莉安</a>,
                          <a href="https://github.com/FuseBead/fuse_bead_v2" target="_blank"> Lyrics</a>,
-                         <a href="https://github.com/BALD-ZHANG/PinDou" target="_blank">张秃炖蘑菇
+                         <a href="https://gitshub.com/BALD-ZHANG/PinDou" target="_blank">张秃炖蘑菇
                             <img src='image/GitHub-Mark-64px.png' style='height: 2rem;' title="访问Github查看最新源代码" />
                         </a>
                     </p>
@@ -1016,11 +1016,15 @@
         }));
         let sumHtml = '<tr><td>合计</td><td>' + totolBeadCount + '</td><td></td></tr>';
         for (let [color, count] of colorSumSorted) {
-            sumHtml += '<tr><td style="background:#' + color + ';color:' + getFontColor(color) + ';">' + paletteMap.get(color).name + '</td><td>' + count + '</td>';
+            try {
+                sumHtml += '<tr><td style="background:#' + color + ';color:' + getFontColor(color) + ';">' + paletteMap.get(color).name + '</td><td>' + count + '</td>';
             if (color != 'Err')
                 sumHtml += '<td><button type="button" class="btn btn-primary btn-sm filterColor" title="只显示所有' + paletteMap.get(color).name + '" value=' + color + '>&lt;&lt;</button></td></tr>';
             else
                 sumHtml += '<td></td></tr>';
+            }catch (e) {
+                console(color);
+            }
         }
         $('#colorSumTable').html(sumHtml);
 

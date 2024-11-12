@@ -162,7 +162,7 @@ allPalettes.set("mard",
         { name: 'F22', color: 'f7c3d0' },
         { name: 'F23', color: 'ec806d' },
         { name: 'F24', color: 'e09daf' },
-        { name: 'F25', color: 'E84854' },
+        { name: 'F25', color: 'e84854' },
 
         { name: 'G1', color: 'ffe4d3' },
         { name: 'G2', color: 'fcc6ac' },
@@ -471,7 +471,7 @@ var items = [
         { name: 'R02', color: 'f7c3d0' },
         { name: 'R05', color: 'ec806d' },
         { name: 'G9', color: 'e09daf' },
-        { name: 'G10', color: 'E84854' },
+        { name: 'G10', color: 'e84854' },
 
         { name: 'E3', color: 'ffe4d3' },
         { name: 'E4', color: 'fcc6ac' },
