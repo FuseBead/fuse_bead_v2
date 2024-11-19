@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>拼豆辅助工具 V2.0</title>
+    <title>拼豆辅助工具【测试版】</title>
     <link rel="shortcut icon" href="/image/favicon.png" type="image/png">
     <link rel="stylesheet" href="https://ajax.aspnetcdn.com/ajax/bootstrap/4.3.1/css/bootstrap.min.css">
     <style>
@@ -58,7 +58,7 @@
         }
     </style>
 
-    <script src="js/palette.v5.js"></script>
+    <script src="js/palette.v4.js"></script>
     <script src="https://ajax.aspnetcdn.com/ajax/jquery/jquery-3.4.1.min.js"></script>
     <script src="js/popper.min.js"></script>
     <script src='https://ajax.aspnetcdn.com/ajax/bootstrap/4.3.1/bootstrap.min.js'></script>
@@ -67,7 +67,7 @@
 <body>
     <div class="card">
         <div class="h3 card-header">
-            <label>拼豆辅助工具 V2.0</label>
+            <label>拼豆辅助工具【测试版】</label>
             <div class="float-right mx-2" class='align-top'>
                 <img src='image/help.png' style='height: 2rem;' data-toggle="modal" data-target="#docModal"
                     title="帮助文档" />
@@ -99,14 +99,6 @@
                         <select id="paletteSelect" class="form-control col-sm-4">
                             <option value="mard" selected>Mard(黄豆豆&小舞)</option>
                             <option value="manman">漫漫</option>
-<!--                            <option value="hama">Hama</option>-->
-<!--                            <option value="perler">Perler 5mm</option>-->
-<!--                            <option value="perler-mini">Perler mini 2.6mm</option>-->
-<!--                            <option value="nabbi">Nabbi</option>-->
-<!--                            <option value="artkal-s">Artkal S 5mm</option>-->
-<!--                            <option value="artkal-r">Artkal R soft 5mm</option>-->
-<!--                            <option value="artkal-c">Artkal C 2.6mm</option>-->
-<!--                            <option value="artkal-a">Artkal A soft 2.6mm</option>-->
                         </select>
                     </div>
                 </div>
@@ -130,14 +122,17 @@
                             <option value="lab">LAB颜色空间</option>
                             <option value="hsv">HSV颜色空间</option>
                             <option value="ciede2000">CIEDE2000</option>
-<!--                            <option value="hama">Hama</option>-->
-<!--                            <option value="perler">Perler 5mm</option>-->
-<!--                            <option value="perler-mini">Perler mini 2.6mm</option>-->
-<!--                            <option value="nabbi">Nabbi</option>-->
-<!--                            <option value="artkal-s">Artkal S 5mm</option>-->
-<!--                            <option value="artkal-r">Artkal R soft 5mm</option>-->
-<!--                            <option value="artkal-c">Artkal C 2.6mm</option>-->
-<!--                            <option value="artkal-a">Artkal A soft 2.6mm</option>-->
+
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="row">
+                        <label class="col-sm-2 col-form-label">图片像素化：</label>
+                        <select id="Pixelation" class="form-control col-sm-4">
+                            <option value="origin" selected>使用原图</option>
+                            <option value="32">32×32</option>
+                            <option value="48">48×48</option>
                         </select>
                     </div>
                 </div>
@@ -163,6 +158,16 @@
                     </div>
                     <div class="card-body">
                         <canvas id="fullCanvas"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card">
+                    <div class="card-header">
+                        像素化图片
+                    </div>
+                    <div class="card-body">
+                        <canvas id="piexlCanvas"></canvas>
                     </div>
                 </div>
             </div>
@@ -370,8 +375,10 @@
         dragMinDistance = 8,//拖拽所需的鼠标移动最小距离（像素）
         imageSizeLimit = 500;//图片尺寸大小限制
 
-    var pieceSize = 40;//单块拼板容纳的拼豆数
-        colorMatchModel = 'rgb'; // 颜色匹配
+    var pieceSize = 40,//单块拼板容纳的拼豆数
+        colorMatchModel = 'rgb', // 颜色匹配
+        pixelBlockSizeX = 500, pixelBlockSizeY = 500; // 像素化后图片大小
+
 
     var paletteMap = generatePaletteMap(allPalettes.get("mard")),//调色板对象
         similarColorCache = new Map(),//与实际颜色最相近的调色板颜色缓存
@@ -407,7 +414,9 @@
     $().ready(function () {
         var originalCanvas = document.getElementById('originalCanvas'),//原始图片canvas
             fullCanvas = document.getElementById('fullCanvas'),//完整图片canvas
+            pixelCanvas = document.getElementById('pixelCanvas'), //像素化图片canvas
             viewCanvas = document.getElementById('viewCanvas');//视图（可拖拽点击）canvas
+
 
         //显示调色板选色器
         generateColorSelectorHtml();
@@ -468,6 +477,8 @@
                             trimCanvas(originalCanvas);
                             //将原图颜色换成最相近的调色板颜色
                             toPaletteColor(originalCanvas, fullCanvas);
+                            //图片像素化
+                            pixelImage(originalCanvas,pixelCanvas);
                             //将完整图片切成图块
                             sliceCanvasToImage(fullCanvas, 'sliceImageContainer');
                             //显示完整图片对应的马赛克大图
@@ -545,6 +556,45 @@
 
                             //将原图颜色换成最相近的调色板颜色
                             toPaletteColor(originalCanvas, fullCanvas);
+                            //将完整图片切成图块
+                            sliceCanvasToImage(fullCanvas, 'sliceImageContainer');
+                            //显示完整图片对应的马赛克大图
+                            showFullImageView();
+                        })};
+                    }
+
+            });
+
+            //图片像素化
+            $('#Pixelation').change(function (e) {
+
+                if (this.value) {
+                    // paletteMap = generatePaletteMap(allPalettes.get(this.value));//重新加载调色板
+                    if (this.value=='origin'){
+                        let ctx = originalCanvas.getContext('2d');
+                        pixelBlockSizeX = ctx.width, pixelBlockSizeY = ctx.height;
+                    }else {
+                         pixelBlockSizeX = parseInt(this.value), pixelBlockSizeY = parseInt(this.value);
+                    }
+
+                    if (!$('#mainContent').is(':hidden')) {
+                        showLoadingMask(() => {
+                            //刷新调色板的完整操作步骤：
+                            //清空缓存和各种信息
+                            similarColorCache = new Map();
+                            paletteImageData = new Array();
+                            sliceImages = new Array();
+                            currentSliceImage = null;
+                            largeCanvasOffsetX = 0;
+                            largeCanvasOffsetY = 0;
+                            colorReplaceList = new Map();
+                            pixelColorReplaceList = new Map();
+                            refreshColorReplaceList();
+
+                            //将原图颜色换成最相近的调色板颜色
+                            toPaletteColor(originalCanvas, fullCanvas);
+                            //将原图像素化
+                            pixelImage(originalCanvas, pixelCanvas);
                             //将完整图片切成图块
                             sliceCanvasToImage(fullCanvas, 'sliceImageContainer');
                             //显示完整图片对应的马赛克大图
@@ -923,6 +973,53 @@
         destCanvas.height = sourceCanvas.height;
         destCtx.putImageData(imageData, 0, 0);
     }
+
+    // 图片像素化
+    function pixelImage(canvas, destCanvas) {
+            let ctx = canvas.getContext('2d'),
+                destCtx = destCanvas.getContext('2d');
+            let imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            let pixelatedImageData = ctx.createImageData(canvas.width, canvas.height);
+
+            for (let x = 0; x < canvas.width; x += pixelBlockSizeX) {
+                for (let y = 0; y < canvas.height; y += pixelBlockSizeY) {
+                    let r = 0, g = 0, b = 0, a = 0, count = 0;
+
+                    // Accumulate the color values in the block
+                    for (let px = x; px < x + pixelBlockSizeX; px++) {
+                        for (let py = y; py < y + pixelBlockSizeY; py++) {
+                            let index = (py * canvas.width + px) * 4;
+                            r += imageData.data[index];
+                            g += imageData.data[index + 1];
+                            b += imageData.data[index + 2];
+                            a += imageData.data[index + 3];
+                            count++;
+                        }
+                    }
+
+                    // Calculate the average color
+                    r = Math.floor(r / count);
+                    g = Math.floor(g / count);
+                    b = Math.floor(b / count);
+                    a = Math.floor(a / count);
+
+                    // Apply the average color to the block
+                    for (let px = x; px < x + pixelBlockSizeX; px++) {
+                        for (let py = y; py < y + pixelBlockSizeY; py++) {
+                            let index = (py * canvas.width + px) * 4;
+                            pixelatedImageData.data[index] = r;
+                            pixelatedImageData.data[index + 1] = g;
+                            pixelatedImageData.data[index + 2] = b;
+                            pixelatedImageData.data[index + 3] = a;
+                        }
+                    }
+                }
+            }
+
+            // Draw the pixelated image data back to the canvas
+            destCtx.putImageData(pixelatedImageData, 0, 0);
+            showImageView(pixelatedImageData);
+        }
 
     //将canvas分割为小图并输出为可点击的image集合
     function sliceCanvasToImage(canvas, sliceContainerName) {
